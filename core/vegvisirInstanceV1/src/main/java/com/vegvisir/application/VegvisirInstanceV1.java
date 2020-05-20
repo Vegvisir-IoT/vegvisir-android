@@ -11,7 +11,6 @@ import com.vegvisir.core.blockdag.NewBlockListener;
 import com.vegvisir.core.blockdag.ReconciliationEndListener;
 import com.vegvisir.core.config.Config;
 import com.vegvisir.core.datatype.proto.Block.Transaction;
-import com.vegvisir.core.reconciliation.VectorClockProtocol;
 import com.vegvisir.gossip.adapter.NetworkAdapterManager;
 import com.vegvisir.pub_sub.TransactionID;
 import com.vegvisir.pub_sub.VegvisirApplicationContext;
@@ -98,13 +97,13 @@ public class VegvisirInstanceV1 implements VegvisirInstance, NewBlockListener, R
         NetworkAdapterManager networkAdapterManager = new NetworkAdapterManager();
         networkAdapterManager.registerAdapter("GoogleNearBy", 100, new AndroidAdapter(ctx, deviceID));
         core = new VegvisirCore(networkAdapterManager,
-//                VectorClockProtocol.class,
                 dataManager,
                 this,
                 createGenesisBlock(keyPair),
                 keyPair,
                 deviceID
         );
+        assert core.getDag().getConfig().getDeviceID().equals(deviceID);
         core.registerReconciliationEndListener(this);
 
         new Thread(this::pollTransactions).start();
@@ -175,7 +174,6 @@ public class VegvisirInstanceV1 implements VegvisirInstance, NewBlockListener, R
 
                 });
             } catch (InterruptedException ex) {
-//                System.err.println("Interrupted transaction polling thread! Will exit.");
                 break;
             }
         }

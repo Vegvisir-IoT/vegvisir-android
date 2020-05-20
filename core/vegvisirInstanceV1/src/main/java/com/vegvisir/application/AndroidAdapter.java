@@ -10,7 +10,6 @@ import com.vegvisir.vegvisir_lower_level.network.Exceptions.ConnectionNotAvailab
 import com.vegvisir.vegvisir_lower_level.network.Network;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
@@ -31,7 +30,6 @@ public class AndroidAdapter implements NetworkAdapter {
         network = new Network(context, id);
         connectionHistory = new ArrayDeque<>();
     }
-
 
     /**
      * Push given @payload to the sending queue for peer with @peerId

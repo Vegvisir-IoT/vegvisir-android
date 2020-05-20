@@ -2,17 +2,13 @@ package com.vegvisir.application;
 
 import android.content.Context;
 
-import com.esotericsoftware.kryo.ReferenceResolver;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.isaacsheff.charlotte.proto.Block;
 import com.isaacsheff.charlotte.proto.Reference;
 import com.vegvisir.core.blockdag.BlockUtil;
 import com.vegvisir.core.blockdag.DataManager;
-import com.vegvisir.core.config.Config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +35,8 @@ public class VegvisirDataManager implements DataManager {
     private Book dagDB;
     private Book metaDB;
     private Book witnessDB;
+
+    private final static boolean ALLOW_LOAD = false;
 
     /**
      * get a singleton data manager object.
@@ -74,6 +72,9 @@ public class VegvisirDataManager implements DataManager {
     @Override
     public Iterable<Block> loadBlockSet() {
         List<Block> blocks = new ArrayList<>();
+        if (!ALLOW_LOAD) {
+            return blocks;
+        }
         long counter = 0;
         synchronized (lock) {
             counter = metaDB.read(COUNTER_NAME, 0L);
@@ -97,6 +98,9 @@ public class VegvisirDataManager implements DataManager {
     @Override
     public Map<Reference, Set<String>> loadWitnessMap() {
         Map<Reference, Set<String>> witnessMap = new ConcurrentHashMap<>();
+        if (!ALLOW_LOAD) {
+            return witnessMap;
+        }
         witnessDB.getAllKeys().forEach(hexRefStr -> {
             String refStr = Utils.hex2str(hexRefStr);
             witnessMap.put(BlockUtil.refStr2Ref(refStr), witnessDB.read(hexRefStr));
@@ -111,11 +115,17 @@ public class VegvisirDataManager implements DataManager {
 
     @Override
     public Block loadGenesisBlock() {
+        if (!ALLOW_LOAD) {
+            return null;
+        }
         return metaDB.read(GENESIS_KEY, null);
     }
 
     @Override
     public int loadAppCount() {
+        if (!ALLOW_LOAD) {
+            return 0;
+        }
         return metaDB.read(APP_COUNT_NAME, 0);
     }
 
@@ -126,6 +136,9 @@ public class VegvisirDataManager implements DataManager {
 
     @Override
     public long loadTransactionHeight() {
+        if (!ALLOW_LOAD) {
+            return 1L;
+        }
         return metaDB.read(TX_HEIGHT, 1L);
     }
 
