@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package vegvisir.proto;
+
+
+option java_multiple_files = true;
+option java_package = "com.vegvisir.common.datatype.proto";
+option java_outer_classname = "VegvisirCommonDatatypeProto";
+option objc_class_prefix = "VEGVISIR";
+
+import "charlotte.proto";
+
+message AddBlocks {
+    repeated charlotte.Block blocksToAdd = 1;
+}
+

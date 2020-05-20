@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package vegvisir.proto;
+
+import "vegvisirCommon.proto";
+
+message HashSet {
+    repeated bytes hashes = 1;
+}
+
+message Request {
+
+    enum Type {
+        DUMMY_REQUEST = 0;
+        SEND_FRONTIER_SET = 1;
+        SEND_BLOCK = 2;
+        ADD_BLOCK = 3;
+        RECONCILIATION_NEEDED = 4;
+    }
+
+    Type type = 1;
+   
+    oneof targets_type {
+        HashSet send = 2;
+        AddBlocks add = 3;
+    }
+} 
+
+message Response {
+    oneof response_types {
+        HashSet hashResponse = 1;
+        AddBlocks blockResponse = 2;
+    }
+    // To be used for telling whether the receiver is behind
+   // in terms of their view of the world.
+    bool is_subset = 3;
+}
+
+message FrontierMessage {
+    oneof frontier_message_type {
+        Request request = 1;
+        Response response = 2;
+    }
+}

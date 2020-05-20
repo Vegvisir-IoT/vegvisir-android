@@ -1,0 +1,15 @@
+include ':annotativeMap', ':taskList', ':vegvisirGossip', ':vegvisirCore', ':vegvisirDatatype', ':vegvisirPubSub', ':vegvisirAndroid', ':vegvisirInstanceV1', ':vegvisirTCP'
+
+project(":annotativeMap").projectDir = new File("apps/annotativeMapApp")
+project(":taskList").projectDir = new File("apps/taskListApp")
+project(":vegvisirAndroid").projectDir = new File("network/vegvisirAndroid")
+project(":vegvisirTCP").projectDir = new File("network/vegvisirTCP")
+project(":vegvisirCore").projectDir = new File("core/vegvisirCore")
+project(":vegvisirDatatype").projectDir = new File("utils/vegvisirDatatype")
+project(":vegvisirGossip").projectDir = new File("gossip/vegvisirGossip")
+project(":vegvisirPubSub").projectDir = new File("pub_sub/vegvisirPubSub")
+project(":vegvisirInstanceV1").projectDir = new File("core/vegvisirInstanceV1")
+
+
+
+

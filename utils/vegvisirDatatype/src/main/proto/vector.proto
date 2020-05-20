@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package vegvisir.proto;
+
+import "vegvisirCommon.proto";
+import "common.proto";
+
+// Map of each peer's name to their leading block on a device.
+message VectorClock {
+    message Body {
+        map<string, int64> clocks = 1;
+        // The userid that signs the data
+        string user_id = 2;
+    }
+
+    Body body = 1;
+    // Signature of the message using the user's private key.
+    charlotte.Signature signature = 2;
+
+}
+
+
+message VectorMessage {
+    enum MessageType {
+        LOCAL_VECTOR_CLOCK = 0;
+        BLOCKS = 1;
+        ALL_VECTOR_CLOCKS = 2;
+    }
+
+    MessageType type = 1;
+
+    VectorClock localView = 2;
+
+    // The number of blocks the peer can send during a vector
+    // protocol reconciliation round.
+    int32 sendLimit = 3;
+
+    AddBlocks add = 4;
+
+    // A repeated list of vector clocks for anti-entropy gossip
+    repeated VectorClock allVectorClocks = 5;
+}
+

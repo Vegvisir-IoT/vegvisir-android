@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin">
+
+    <TextView
+        android:id="@+id/selected_item"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:padding="5dp"
+        tools:text="" />
+
+    <TextView
+        android:id="@+id/low_priority"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/rectangle_border_low"
+        android:padding="3dp"
+        android:text="@string/low_p_text"
+        android:textColor="@color/White"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:id="@+id/medium_priority"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="3dp"
+        android:background="@drawable/rectangle_border_medium"
+        android:padding="3dp"
+        android:text="@string/medium_p_text"
+        android:textColor="@color/White"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:id="@+id/high_prioirty"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="3dp"
+        android:background="@drawable/rectangle_border_high"
+        android:padding="3dp"
+        android:text="@string/high_p_text"
+        android:textColor="@color/White"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:layout_margin="3dp"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/rectangle_border_remove"
+        android:drawableLeft="@drawable/ic_close"
+        android:id="@+id/delete_item"/>
+</LinearLayout>

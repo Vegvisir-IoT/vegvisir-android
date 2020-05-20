@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.isaacsheff.charlotte.proto";
+option java_outer_classname = "CharlotteCommonProto";
+option objc_class_prefix = "CHARLOTTE_COMMON";
+
+package charlotte;
+
+import "google/protobuf/timestamp.proto";
+
+// BASIC CRYPTO PRIMITIVES
+
+message Hash {
+  oneof hashalgorithm_oneof {
+    bytes sha3 = 1;
+    bytes sha256 = 2;
+  }
+}
+
+message PublicKey {
+  message EllipticCurveP256 { // I suppose we may someday want to edit how we store P256s?
+    bytes byteString = 1;
+  }
+  oneof keyalgorithm_oneof {    
+    EllipticCurveP256 ellipticCurveP256 = 1;
+  }
+}
+
+message CryptoId { // distinct from PublicKeys, because it might be a hash of a public key, I guess
+  oneof idtype_oneof {
+    PublicKey publicKey = 1;
+    Hash hash = 2;
+  }
+}
+
+message Signature {
+  message SignatureAlgorithmSHA256WithECDSA {
+    bytes byteString = 1;
+  }
+  CryptoId cryptoId = 1;
+  oneof signaturealgorithm_oneof {
+    SignatureAlgorithmSHA256WithECDSA sha256WithEcdsa = 2;
+  }
+}
+
+message Reference {
+  Hash hash = 1; // the block we're referencing
+  repeated Hash availabilityAttestations = 2; // ids of avail. attestations (where to find it)
+  repeated Reference integrityAttestations = 3; // ids of relevant integrity attestations (and where to find those)
+}
+
+message IntegrityAttestation {
+  message ChainSlot {
+    Reference block = 1;
+    Reference root = 2;
+    uint64 slot = 3;
+    Reference parent = 4;
+  }
+  message SignedChainSlot { // I really wish I could make Signed a generic
+    ChainSlot chainSlot = 1;
+    Signature signature = 2;
+  }
+  message TimestampedReferences {
+    google.protobuf.Timestamp timestamp = 1;
+    repeated Reference block = 2;
+  }
+  message SignedTimestampedReferences {
+    TimestampedReferences timestampedReferences = 1;
+    Signature signature = 2;
+  }
+  message GitSimBranch {
+    google.protobuf.Timestamp timestamp = 1;
+    string branchName = 2;
+    Reference commit = 3;
+  }
+  message SignedGitSimBranch {
+    GitSimBranch gitSimBranch = 1;
+    Signature signature = 2;
+  }
+  message HetconsAttestation {
+    repeated CryptoId observers = 1;
+    repeated Reference message2b = 2;
+  }
+  oneof integrityattestationtype_oneof {
+    // SignedChainSlot signedChainSlot = 1;
+    // SignedTimestampedReferences signedTimestampedReferences = 2;
+    // SignedGitSimBranch signedGitSimBranch = 3;
+    HetconsAttestation hetconsAttestation = 4;
+  }
+}
+
+
+message AvailabilityAttestation {
+  message StoreForever {
+    repeated Reference block = 1;
+  }
+  message SignedStoreForever { // I really wish I could make Signed a generic
+    StoreForever storeForever = 1;
+    Signature signature = 2;
+  }
+  oneof availabilityattestationtype_oneof {
+    SignedStoreForever signedStoreForever = 1;
+  }
+}

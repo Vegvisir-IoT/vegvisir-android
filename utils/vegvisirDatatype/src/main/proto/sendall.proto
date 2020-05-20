@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package vegvisir.proto;
+
+import "vegvisirCommon.proto";
+
+message SendallMessage {
+    vegvisir.proto.AddBlocks add = 2;
+} 
+

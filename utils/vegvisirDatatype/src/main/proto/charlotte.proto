@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.isaacsheff.charlotte.proto";
+option java_outer_classname = "CharlotteProto";
+option objc_class_prefix = "CHARLOTTE";
+
+package charlotte;
+
+import "common.proto";
+import "hetcons.proto";
+
+message SignedGitSimCommit {
+  message GitSimCommit {
+    message GitSimParents {
+      message GitSimParent {
+        Reference parentCommit = 1;
+        bytes diff = 2;
+      }
+      repeated GitSimParent parent = 1;
+    }
+    string comment = 1;
+    Hash hash = 2;
+    oneof commit_oneof {
+      bytes initialCommit = 3;
+      GitSimParents parents = 4;
+    }
+  }
+  GitSimCommit commit = 1;
+  Signature signature = 2;
+}
+
+message Block {
+  oneof blocktype_oneof {
+    AvailabilityAttestation availabilityAttestation = 1;
+    IntegrityAttestation integrityAttestation = 2;
+    string str = 3; // why not?
+    HetconsBlock hetconsBlock = 4;
+    SignedGitSimCommit signedGitSimCommit= 5;
+    bytes block = 6;
+    // This is probably the best place for an Any type, but for now, keep it minimum
+  }
+}
+
+
+// SERVICES
+
+
+message SendBlocksInput {
+  Block block = 1;
+}
+message SendBlocksResponse {
+  string errorMessage = 1;
+}
+
+service CharlotteNode {
+  // send blocks to this server.
+  // used for gossiping / flooding
+  rpc SendBlocks(stream SendBlocksInput) returns (stream SendBlocksResponse) {}
+}
+
+
+// WILBUR
+
+message AvailabilityPolicy {
+  oneof availabilitypolicytype_oneof {
+    AvailabilityAttestation fillInTheBlank = 1;
+  }
+}
+// just wrappers for the rpc input and output
+message RequestAvailabilityAttestationInput {
+  AvailabilityPolicy policy = 1;
+}
+message RequestAvailabilityAttestationResponse {
+  string errorMessage = 1;
+  Reference reference = 2;
+}
+service Wilbur { // anything running a Wilbur service should also run a CharlotteNode
+  rpc RequestAvailabilityAttestation(RequestAvailabilityAttestationInput) returns (RequestAvailabilityAttestationResponse) {}
+}
+
+// WILBUR QUERY
+
+message WilburQueryInput {
+  oneof wilburquery_oneof {
+    Reference reference = 1;
+    Block fillInTheBlank = 2;
+  }
+}
+
+message WilburQueryResponse {
+  string errorMessage = 1;
+  repeated Block block = 2;
+}
+
+service WilburQuery { // anything running a WilburQuery service should also run a Wilbur and CharlotteNode service
+  rpc WilburQuery(WilburQueryInput) returns (WilburQueryResponse) {}
+}
+
+
+
+// FERN
+
+message IntegrityPolicy {
+  message HetconsPolicy {
+    HetconsMessage proposal = 1;
+    CryptoId observer = 2;
+  }
+  oneof integritypolicytype_oneof {
+    IntegrityAttestation fillInTheBlank = 1;
+    HetconsPolicy hetconsPolicy = 2;
+  }
+}
+// just wrappers for the RPC input and output
+message RequestIntegrityAttestationInput {
+  IntegrityPolicy policy = 1;
+}
+message RequestIntegrityAttestationResponse {
+  string errorMessage = 1;
+  Reference reference = 2;
+}
+service Fern { // anything running a Fern service should also run a CharlotteNode
+  rpc RequestIntegrityAttestation(RequestIntegrityAttestationInput) returns (RequestIntegrityAttestationResponse) {}
+}

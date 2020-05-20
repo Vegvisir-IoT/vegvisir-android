@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Task List</string>
+    <string name="add_button_text">Add</string>
+    <string name="low_p_text">L</string>
+    <string name="medium_p_text">M</string>
+    <string name="high_p_text">H</string>
+    <string name="logout_button_text">Log out</string>
+    <string name="item_editText_hint">Write the name of the item you want to add/remove</string>
+    <string name="title_activity_login">Task List</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_register">Register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome "</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+</resources>

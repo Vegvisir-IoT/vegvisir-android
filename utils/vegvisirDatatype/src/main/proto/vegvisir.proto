@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.vegvisir.core.datatype.proto";
+option java_outer_classname = "VegvisirCoreDatatypeProto";
+option objc_class_prefix = "VEGVISIR";
+
+package vegvisir.proto;
+
+import "common.proto";
+
+message Certificate {
+    string userid = 9;
+    bytes public_key = 10;
+    bytes private_key = 11;
+    bytes signature = 12;
+}
+
+message Timestamp {
+  double utc_time = 1;
+  int64 elapsed_time = 2;
+}
+
+message Location {
+  float longitude = 1;
+  float latitude = 2;
+  float altitude = 3;
+  Timestamp timestamp = 4;
+}
+
+message Block {
+    message GenesisBlock{
+        string userid = 1;
+        float timestamp = 2;
+        Certificate ca_certificate = 3;
+        repeated Certificate certlist = 4;
+        // Signed by CA, users not longer get access to CA certificate.
+        bytes signature = 5;
+    }
+
+    message Transaction {
+        message TransactionId {
+            string deviceId = 1;
+            int64 transactionHeight = 2;
+        }
+        repeated string topics = 1;
+        TransactionId transactionId = 2;
+        repeated TransactionId dependencies = 3;
+        string userid = 4;
+        double timestamp = 5;
+        int32 recordid = 6;
+        bytes payload = 7;
+    }
+
+    message UserBlock {
+        string userid = 1;
+        Timestamp timestamp = 2;
+        Location location = 3;
+        repeated charlotte.Reference parents = 4;
+        repeated Transaction transactions = 5;
+        charlotte.CryptoId cryptoID = 6;
+        int64 height = 7;
+    }
+
+    charlotte.Signature signature = 1;
+
+    oneof blocktype_oneof {
+        GenesisBlock genesis_block = 2;
+        UserBlock user_block = 3;
+    }
+
+}
+
+message Blockchain {
+    message UseridAssociations {
+        string userid = 5;
+    }
+
+    message Keystore {
+        Certificate ca_cert = 6;
+        repeated UseridAssociations userids = 7;
+        repeated Certificate usercerts = 8;
+    }
+
+    Block.GenesisBlock genesis = 9;
+    Keystore keystore = 10;
+    repeated Block.UserBlock blocks = 11;
+}
+
+
+message LocationRequestResponse {
+  oneof content_oneof {
+    Location location = 1;
+    string error_message = 2;
+  }
+}
+
+message LocationServiceNotAvailableException {
+  string error_message = 1;
+}
