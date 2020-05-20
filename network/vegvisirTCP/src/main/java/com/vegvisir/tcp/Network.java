@@ -1,9 +1,9 @@
 package com.vegvisir.tcp;
 
+import com.vegvisir.network.datatype.proto.Payload;
+
 import java.io.IOException;
 import java.util.function.Consumer;
-
-import com.vegvisir.network.datatype.proto.Payload;
 
 public class Network {
 

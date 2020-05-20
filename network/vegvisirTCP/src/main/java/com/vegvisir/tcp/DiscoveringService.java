@@ -1,13 +1,13 @@
 package com.vegvisir.tcp;
 
+import com.vegvisir.network.datatype.proto.UDPAdvertisingMessage;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingDeque;
-import com.vegvisir.network.datatype.proto.UDPAdvertisingMessage;
 
 public class DiscoveringService {
 
@@ -31,7 +31,11 @@ public class DiscoveringService {
     }
 
     public UDPAdvertisingMessage waitingAdvertising() throws InterruptedException {
-        return receivedMessage.take();
+        UDPAdvertisingMessage message;
+        do {
+             message = receivedMessage.take();
+        } while (message == null || message.getDeviceId().equals(config.getDeviceID()));
+        return message;
     }
 
 

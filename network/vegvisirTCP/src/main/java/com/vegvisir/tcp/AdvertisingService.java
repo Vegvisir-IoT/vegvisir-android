@@ -1,10 +1,11 @@
 package com.vegvisir.tcp;
 
+import com.vegvisir.network.datatype.proto.UDPAdvertisingMessage;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import com.vegvisir.network.datatype.proto.UDPAdvertisingMessage;
 
 public class AdvertisingService {
 
@@ -39,12 +40,15 @@ public class AdvertisingService {
             while (advertising) {
                 try {
                     socket.send(new DatagramPacket(message, message.length, multicastGroup, config.getUdpPort()));
-                    Thread.sleep(5000);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     System.err.println("Start Advertising failed due to " + ex.getLocalizedMessage());
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                } finally {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         }).start();

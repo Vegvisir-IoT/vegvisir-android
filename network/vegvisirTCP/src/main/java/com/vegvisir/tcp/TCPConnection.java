@@ -1,12 +1,12 @@
 package com.vegvisir.tcp;
 
+import com.vegvisir.network.datatype.proto.Payload;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
-
-import com.vegvisir.network.datatype.proto.Payload;
 
 public class TCPConnection {
 
