@@ -59,7 +59,6 @@ public class PictureTagView extends RelativeLayout{
     /** 初始化 **/
     protected void init(){
         imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-//        directionChange();
     }
 
 
@@ -78,23 +77,8 @@ public class PictureTagView extends RelativeLayout{
         switch(status){
             case Normal:
                 tvPictureTagLabel.setVisibility(View.VISIBLE);
-//                tvPictureTagLabel.setText(etPictureTagLabel.getText());
-                //隐藏键盘
-//                imm.hideSoftInputFromWindow(etPictureTagLabel.getWindowToken() , 0);
-//                tvPictureTagLabel.setVisibility(View.GONE);
-//
-//                Intent intent = new Intent();
-//                intent.setClass(context,add_annotation.class);
-//                intent.putExtra("CUR_ANNO",tvPictureTagLabel.getText());
-//                // 把已经添加的tag发送给add_annotation
-//                time = getTime();
-//                intent.putExtra("TIME",time);
-//                ((Activity)context).startActivityForResult(intent,0);
-
                 break;
             case Edit:
-                //tvPictureTagLabel.setVisibility(View.GONE);
-
                 Intent intent = new Intent();
                 intent.setClass(context,add_annotation.class);
                 intent.putExtra("CUR_ANNO",fullText);
@@ -102,9 +86,6 @@ public class PictureTagView extends RelativeLayout{
                 time = getTime();
                 intent.putExtra("TIME",time);
                 ((Activity)context).startActivityForResult(intent,0);
-
-                //弹出键盘
-//                imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
                 break;
             case Del:
                 tvPictureTagLabel.setVisibility(View.GONE);
@@ -117,29 +98,22 @@ public class PictureTagView extends RelativeLayout{
         View parent = (View) getParent();
         int halfParentW = (int) (parent.getWidth()*0.5);
         int center = (int) (l + (this.getWidth()*0.5));
-//        if(center<=halfParentW){
-//            direction = Direction.Left;
-//        }
-//        else{
-//            direction = Direction.Right;
-//        }
-//        directionChange();
     }
     private void directionChange(){
         switch(direction){
             case Left:
-//                loTag.setBackgroundResource(R.drawable.fire_left_small);
                 loTag.setBackgroundResource(R.drawable.bg_picturetagview_tagview_left);
                 break;
             case Right:
-//                loTag.setBackgroundResource(R.drawable.fire_right_small);
                 loTag.setBackgroundResource(R.drawable.bg_picturetagview_tagview_right);
                 break;
         }
     }
+
     public static int getViewWidth(){
         return ViewWidth;
     }
+
     public static int getViewHeight(){
         return ViewHeight;
     }

@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, picture.class);
-//                Log.i("Before starting","1");
                 startActivity(intent);
             }
         });
@@ -42,30 +41,25 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 MainActivity.this.runOnUiThread(() -> {
-//                    Log.i("timer","running");
                     if (thisApp.getCurrentPicture() != null && thisApp.isRunningMainActivity()) {
                         if (!thisApp.isPrintedOnce()) {
                             Log.i("annosatstart", thisApp.getAnnotations().toString());
                         }
                         Set<Coordinates> entriesToRemove = new HashSet<>();
 
-//                            Log.i("before",annotations.toString());
                         for (Map.Entry<Coordinates, Annotation> entry : thisApp.getAnnotations().entrySet()) {
 
                             Coordinates coords = entry.getKey();
                             if (!thisApp.isPrintedOnce()) {
                                 Log.i("coords", coords.getX() + "," + coords.getY());
-//                                Log.i("shouldRemove",entry.getValue().getShouldRemove().toString());
                                 Log.i("alreadyAdded", entry.getValue().getAlreadyAdded().toString());
                             }
                             Annotation annoObj = entry.getValue();
-//                            PictureTagLayout image = annoObj.getLayout();
                             anno = annoObj.getAnnotation();
                             PictureTagLayout image = thisApp.getCurrentPicture().findViewById(R.id.image);
 
 
                             if (annoObj.getShouldRemove()) {
-//                                Log.i("Should remove", "reached");
                                 entriesToRemove.add(coords);
                                 View v = image.justHasView(coords.getX(),coords.getY());
                                 if (v != null) {
@@ -88,12 +82,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     view.setAnnotation(anno);
 
-//                                    Log.i("ok", "nice");
                                     annoObj.setAlreadyAdded(true);
                                 } else {
                                     PictureTagView view = image.justHasView(coords.getX(), coords.getY());
                                     if (view != null) {
-//                                        Log.i("edit","case");
                                         view.setAnnotation(anno);
                                     }
                                 }
@@ -108,20 +100,6 @@ public class MainActivity extends AppCompatActivity {
                             Log.i("annos", thisApp.getAnnotations().toString());
                         }
                         thisApp.setPrintedOnce(true);
-
-//                            Random rand = new Random();
-//                            int rand1 = rand.nextInt(500);
-//                            int rand2 = rand.nextInt(500);
-//
-//                            String payloadString = "9" + 500 + "," + 500 + "," + "abcdef";
-//                            byte[] payload = payloadString.getBytes();
-//                            Set<String> topics = new HashSet<>();
-//                            topics.add(LoginActivity.topic);
-//                            Set<TransactionID> dependencies = LoginActivity.mapTopDeps;
-//                            Coordinates c = new Coordinates(500,500);
-//
-//                            LoginActivity.virtual.addTransaction(LoginActivity.context, topics, payload, dependencies);
-
                     }
                 });
             }
@@ -132,25 +110,9 @@ public class MainActivity extends AppCompatActivity {
         timer.schedule(task,0,1000);
 
         Intent intent = new Intent(MainActivity.this, picture.class);
-//                Log.i("Before starting","1");
         startActivity(intent);
-//        runningMainActivity = true;
 
     }
-
-//    public static void pause() {
-//        Log.i("timer","cancel");
-//        timer.cancel();
-//    }
-//
-//    public static void resume() {
-//        if (timer != null) {
-//            Log.i("timer","resume");
-//            timer = new Timer();
-//            timer.schedule( task, 0, 1000 );
-//        }
-//    }
-
 
     @Override
     public void onBackPressed() {

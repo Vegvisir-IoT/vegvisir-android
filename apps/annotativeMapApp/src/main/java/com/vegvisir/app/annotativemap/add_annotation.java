@@ -52,10 +52,8 @@ public class add_annotation extends AppCompatActivity implements View.OnClickLis
         switch (view.getId()) {
             case R.id.done:
                 intent = new Intent(add_annotation.this, picture.class);
-//                final String cur_time = getTime();
                 anno_added = gettext().trim();
                 if (!TextUtils.isEmpty(anno_added)) {
-//                    intent.putExtra(TIME, cur_time);
                     intent.putExtra(ANNOTATION, anno_added);
                     setResult(0, intent);
                     finish();
@@ -65,12 +63,6 @@ public class add_annotation extends AppCompatActivity implements View.OnClickLis
                 }
                 break;
             case R.id.del:
-//                intent = new Intent(add_annotation.this, picture.class);
-//                anno_added = gettext();
-//                intent.putExtra(ANNOTATION, "");
-//                setResult(0, intent);
-//                finish();
-
                 Intent intent1 = new Intent(add_annotation.this, picture.class);
                 intent1.putExtra(DEL, "delete");
                 setResult(1, intent1);

@@ -92,30 +92,20 @@ public class PictureTagLayout extends RelativeLayout implements OnTouchListener 
                     startTouchViewTop = touchView.getTop();
                 }
                 else{
-//                    hasView(startX, startY);
                     touchView = addItem(startX,startY);
 
                     Log.i("flag","before");
                     justHasView(-1,-1);
                     Log.i("flag","after");
-//                    ((PictureTagView) touchView).setXVal(startX);
-//                    ((PictureTagView) touchView).setYVal(startY);
                     justHasView(-1,-1);
 
                     ((PictureTagView) touchView).setStatus(Status.Edit);
                     clickView = touchView;
                     touchView = null;
 
-//                    Log.i("Before adding item",MainActivity.annotations.toString());
-//                    MainActivity.annotations.put(new Coordinates(startX,startY),"");
-//                    Log.i("After adding item",MainActivity.annotations.toString());
-
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-//                Log.i("Action","move");
-//                moveView((int) event.getX(),
-//                        (int) event.getY());
                 break;
             case MotionEvent.ACTION_UP:
                 Log.i("Action","up");
@@ -146,8 +136,6 @@ public class PictureTagLayout extends RelativeLayout implements OnTouchListener 
 
         View view = null;
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-//        System.out.println("width "+getWidth);
-//        System.out.println("height "+getHeight);
         if(x>getWidth*0.5){
             params.leftMargin = x - PictureTagView.getViewWidth();
             view = new PictureTagView(getContext(),Direction.Right,x,y);
@@ -156,7 +144,6 @@ public class PictureTagLayout extends RelativeLayout implements OnTouchListener 
             params.leftMargin = x;
             view = new PictureTagView(getContext(),Direction.Left,x,y);
         }
-
 
         params.topMargin = y;
         //上下位置在视图内
@@ -167,15 +154,6 @@ public class PictureTagLayout extends RelativeLayout implements OnTouchListener 
 
         this.addView(view, params);
         view.setLayoutParams(params);
-//        Log.i("flag","before");
-//        justHasView(-1,-1);
-//        Log.i("flag","after");
-//        ((PictureTagView) view).setXVal(x);
-//        ((PictureTagView) view).setYVal(y);
-//        justHasView(-1,-1);
-//        System.out.println(params.leftMargin+" "+params.topMargin);
-//        System.out.println(" "+x+" "+y);
-
         return view;
     }
 
@@ -213,20 +191,12 @@ public class PictureTagLayout extends RelativeLayout implements OnTouchListener 
     }
 
     public PictureTagView justHasView(int x,int y){
-//        Log.i("numberofviews",Integer.toString(this.getChildCount()));
         for(int index = 0; index < this.getChildCount(); index ++){
             PictureTagView view = (PictureTagView) this.getChildAt(index);
             int left = (int) view.getX();
             int top = (int) view.getY();
             int right = view.getRight();
             int bottom = view.getBottom();
-//            Log.i("view number",Integer.toString(index));
-//            Log.i("view left",Integer.toString(left));
-//            Log.i("view right",Integer.toString(right));
-//            Log.i("view mapTop",Integer.toString(mapTop));
-//            Log.i("view bottom",Integer.toString(bottom));
-//            Log.i("view x",""+view.getXVal());
-//            Log.i("view y",""+view.getYVal());
             Rect rect = new Rect(left, top, right, bottom);
             boolean contains = rect.contains(x, y);
 

@@ -31,21 +31,13 @@ public class picture extends AppCompatActivity implements View.OnClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        Log.i("Before click","2.25");
         super.onCreate(savedInstanceState);
-//        Log.i("Before click","2.5");
         setContentView(R.layout.pic);
-//        Log.i("Before click","3");
         PictureTagLayout image = findViewById(R.id.image);
-//        Log.i("Before click","4");
         image.setBackgroundResource(R.drawable.chicago_map);
-
-//        Log.i("Before click","5");
         image.load(); //read /sdcard/info.txt and init the subviews(annotations)
-//        image.write();
 
         thisApp = (AnnotativeMapApplication) this.getApplication();
-
         thisApp.setCurrentPicture(this);
         thisApp.setRunningMainActivity(true);
 
@@ -60,7 +52,6 @@ public class picture extends AppCompatActivity implements View.OnClickListener{
             case R.id.logout:
                 Intent intent = new Intent(picture.this, LoginActivity.class);
                 startActivity(intent);
-//                MainActivity.pause();
                 thisApp.setRunningMainActivity(false);
                 Set<Coordinates> coords = thisApp.getAnnotations().keySet();
                 for (Coordinates c: coords) {
@@ -81,8 +72,6 @@ public class picture extends AppCompatActivity implements View.OnClickListener{
             }
             cur_time = annotation.getStringExtra(TIME);
             PictureTagLayout image = findViewById(R.id.image);
-            //if (!TextUtils.isEmpty(anno)) {
-                //Log.i("image",image.toString());
                 Log.i("add x", Integer.toString(image.startX));
                 Log.i("add y", Integer.toString(image.startY));
                 Coordinates coords;
@@ -100,8 +89,6 @@ public class picture extends AppCompatActivity implements View.OnClickListener{
                 topics.add(thisApp.getTopic());
                 Set<TransactionID> dependencies = thisApp.getMapTopDeps();
 
-
-
                 String payloadString = "9" + coords.getX() + "," + coords.getY() + "," + anno;
                 byte[] payload = payloadString.getBytes();
                 Log.i("gets","here");
@@ -113,17 +100,13 @@ public class picture extends AppCompatActivity implements View.OnClickListener{
         }
         else if (resultCode == 1) { //Del
             try {
-                //String del = annotation.getStringExtra(DEL);
                 PictureTagLayout image = findViewById(R.id.image);
-                //image.setStatus(Status.Del,del);
                 Log.i("del x", Integer.toString(image.startX));
                 Log.i("del y", Integer.toString(image.startY));
                 PictureTagView view = image.justHasView(image.startX, image.startY);
                 Coordinates coords;
                 if (view != null) {
                     coords = new Coordinates(view.getXVal(), view.getYVal());
-//                    Log.i("view x",""+view.getXVal());
-//                    Log.i("view y",""+view.getYVal());
                 } else {
                     Log.i("View", "somehow not found");
                     coords = new Coordinates(image.startX, image.startY);
@@ -133,25 +116,12 @@ public class picture extends AppCompatActivity implements View.OnClickListener{
                 topics.add(thisApp.getTopic());
                 Set<TransactionID> dependencies = thisApp.getMapTopDeps();
 
-
-
                 if (thisApp.getAnnotations().containsKey(coords)) {
                     anno = thisApp.getAnnotations().get(coords).getAnnotation();
                 } else {
                     Log.i("How did we", "get here");
                 }
 
-//            for(Map.Entry<Coordinates, Annotation> entry : MainActivity.annotations.entrySet()) {
-//                Coordinates c = entry.getKey();
-//                Annotation annoObj = entry.getValue();
-//                PictureTagView view = MainActivity.imageAtCoords.get(c);
-//
-//                if (view.justHasView(image.startX,image.startY)) {
-//                    anno = MainActivity.annotations.get(c).getAnnotation();
-//                    break;
-//                }
-//
-//            }
                 String payloadString = "8" + view.getXVal() + "," + view.getYVal() + "," + anno;
                 byte[] payload = payloadString.getBytes();
 
