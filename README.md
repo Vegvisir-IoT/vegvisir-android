@@ -3,7 +3,7 @@ Vegvisir Android
 
 ### Overview
 
-This is a Android implementation for [Vegvisir Project](https://vegvisir.cs.cornell.edu/). As the origin 
+This is an Android implementation for [Vegvisir Project](https://vegvisir.cs.cornell.edu/). As the origin 
 Vegvisir project designed in a layered structure, this implementation mimics the ideas in the paper splitting 
 the Vegvisir Android infrastructure into the following layers:
 
@@ -27,7 +27,7 @@ Then, open and run this project from Android Studio.
 ### Applications Inside
 There are two applications can run on android devices with
 API level >= 28. The first application is *Annotative Map* that allows users put a noted marker on a shared map. This
-is useful for scenarios where, the infrastructure network is missing and GPS location is not trustable. For instance,
+is useful for scenarios where, the infrastructure network is missing and GPS locations are not trustable. For instance,
 when first responders need to enter a building to save lives, then this can help.  The other application is *Task List*,
 which lets users to create a shared task list between team members who have devices running Vegvisir on a peer-to-peer 
 ad hoc network.
