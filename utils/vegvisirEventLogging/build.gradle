@@ -1,0 +1,63 @@
+plugins {
+    id 'java-library'
+//    id 'com.google.protobuf'
+	id 'idea'
+}
+//
+//protobuf {
+//
+//    protoc {
+//        // Download from repositories
+//        artifact = 'com.google.protobuf:protoc:3.6.1'
+//    }
+
+//	plugins {
+//        javalite {
+//            // The codegen for lite comes as a separate artifact
+//            artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
+//        }
+//    }
+
+//    generateProtoTasks {
+//        all().each { task ->
+//            task.builtins {
+////                remove java
+//            }
+//            task.plugins {
+////                javalite {}
+//            }
+//        }
+//    }
+//}
+//
+//sourceSets.main.java.srcDir new File(buildDir, 'generated/source/proto')
+//idea {
+//    module {
+//        // Marks the already(!) added srcDir as "generated"
+//        generatedSourceDirs += file('build/generated/source/proto')
+//    }
+//}
+
+
+
+
+//dependencies {
+//    implementation fileTree(include: ['*.jar'], dir: 'libs')
+////    compile files('src/main/proto')
+////	implementation 'com.google.protobuf:protobuf-lite:3.0.0'
+//    implementation 'com.google.protobuf:protobuf-java:3.6.1'
+//    testImplementation 'junit:junit:4.12'
+//}
+//
+//test{
+//    useJUnitPlatform()
+//}
+
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+//    implementation 'com.google.protobuf:protobuf-java:3.6.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.4.2'
+}
