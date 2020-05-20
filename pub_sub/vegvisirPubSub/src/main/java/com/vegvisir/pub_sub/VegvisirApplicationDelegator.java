@@ -1,7 +1,5 @@
 package com.vegvisir.pub_sub;
 
-import com.vegvisir.core.datatype.proto.Block;
-
 import java.util.Set;
 
 

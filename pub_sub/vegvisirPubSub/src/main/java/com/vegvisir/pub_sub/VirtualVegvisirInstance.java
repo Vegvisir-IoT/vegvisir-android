@@ -3,14 +3,10 @@ package com.vegvisir.pub_sub;
 import com.google.protobuf.ByteString;
 import com.vegvisir.core.datatype.proto.Block;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -178,7 +174,6 @@ public class VirtualVegvisirInstance implements VegvisirInstance {
                 if (random.nextBoolean())
                     delegator.onNewReconciliationFinished();
             } catch (InterruptedException ex) {
-//                System.err.println("Interrupted transaction polling thread! Will exit.");
                 break;
             }
         }
