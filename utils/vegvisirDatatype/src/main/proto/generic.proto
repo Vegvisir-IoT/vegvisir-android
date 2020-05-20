@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package vegvisir.proto;
 
-
 message GenericMessage {
     int32 identifier = 1;
     bytes payload = 2;

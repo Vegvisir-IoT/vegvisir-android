@@ -39,5 +39,6 @@ message VectorMessage {
 
     // A repeated list of vector clocks for anti-entropy gossip
     repeated VectorClock allVectorClocks = 5;
+
 }
 

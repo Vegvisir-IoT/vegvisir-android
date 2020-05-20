@@ -61,7 +61,7 @@ message Block {
         charlotte.CryptoId cryptoID = 6;
         int64 height = 7;
     }
-
+    
     charlotte.Signature signature = 1;
 
     oneof blocktype_oneof {
