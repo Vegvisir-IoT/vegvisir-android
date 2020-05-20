@@ -1,12 +1,9 @@
 package com.vegvisir.core.blockdag;
 
-import com.isaacsheff.charlotte.proto.Hash;
-import com.vegvisir.core.config.Config;
-import com.vegvisir.core.datatype.proto.Block;
 import com.isaacsheff.charlotte.proto.Reference;
+import com.vegvisir.core.datatype.proto.Block;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +13,6 @@ import vegvisir.proto.Vector;
 public class BlockchainV1 extends Blockchain {
 
     Vector.VectorClock latestVC;
-//    Block.VectorClock latestVC;
 
     /**
      * Constructor for a blockchain.

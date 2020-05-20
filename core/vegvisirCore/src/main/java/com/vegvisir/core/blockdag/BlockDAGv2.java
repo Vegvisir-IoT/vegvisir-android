@@ -2,23 +2,21 @@ package com.vegvisir.core.blockdag;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.isaacsheff.charlotte.proto.Block;
-import com.isaacsheff.charlotte.proto.Reference;
-
 import com.isaacsheff.charlotte.proto.CryptoId;
+import com.isaacsheff.charlotte.proto.Reference;
 import com.vegvisir.core.config.Config;
+import com.vegvisir.util.profiling.DebugUtils;
+import com.vegvisir.util.profiling.VegvisirStatsCollector;
 
-import java.sql.Ref;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import vegvisir.proto.Vector.VectorClock;
 
@@ -34,17 +32,23 @@ public class BlockDAGv2 extends BlockDAG {
 
     private DataManager manager;
 
+    private VegvisirStatsCollector statsCollector;
+
     public BlockDAGv2(Block genesisBlock, Config config, DataManager manager, NewBlockListener listener) {
         super(genesisBlock, config, listener);
         this.manager = manager;
         blockchains = new HashMap<>();
-        blockchains.put(config.getDeviceID(), new BlockchainV1(this, config.getCryptoId()));
+        addNewChain(config.getCryptoId());
         leadingSet = new HashSet<>();
         Block oldGenesisBlock = manager.loadGenesisBlock();
         this.genesisBlock = oldGenesisBlock == null ? genesisBlock : oldGenesisBlock;
         blockStorage.putIfAbsent(BlockUtil.byRef(this.genesisBlock), this.genesisBlock);
         leadingSet.add(BlockUtil.byRef(this.genesisBlock));
         manager.saveGenesisBlock(this.genesisBlock);
+    }
+
+    public void setStatsCollector(VegvisirStatsCollector statsCollector) {
+        this.statsCollector = statsCollector;
     }
 
     /**
@@ -100,6 +104,7 @@ public class BlockDAGv2 extends BlockDAG {
         blockId = _block.getUserBlock().getCryptoID();
         if (!blockchains.containsKey(BlockUtil.cryptoId2Str(blockId))) {
             if (validatePeer(blockId)) {
+                System.err.println("ADD BLOCK ID: "+ DebugUtils.utf82base64(BlockUtil.cryptoId2Str(blockId)));
                 addNewChain(blockId);
             } else {
                 return null;
@@ -113,23 +118,11 @@ public class BlockDAGv2 extends BlockDAG {
         }
         if (save)
             manager.saveBlock(block);
+        if(statsCollector != null) {
+            statsCollector.logNewBlockCount(blockStorage.size());
+        }
         return blockRef;
     }
-
-    //    /**
-//     * Append blocks to chain with @cryptoId.
-//     * @param blocks a set of blocks to be appended.
-//     * @param cryptoId the id of the chain.
-//     */
-//    public void addBlocks(Iterable<Block> blocks, com.isaacsheff.charlotte.proto.CryptoId cryptoId) {
-//        if (!blockchains.containsKey(cryptoId)) {
-//            if (!validatePeer(cryptoId))
-//                return;
-//            addNewChain(cryptoId);
-//        }
-//        blockchains.get(cryptoId).appendBlocks(blocks);
-//    }
-
 
     /**
      * Add all bocks in @blocks to the dag. This is a alias of addBlocks in V2.
@@ -150,10 +143,11 @@ public class BlockDAGv2 extends BlockDAG {
      * @param id the id of the node. This is also the key to be used.
      */
     protected synchronized void addNewChain(com.isaacsheff.charlotte.proto.CryptoId id) {
-        if (!blockchains.containsKey(BlockUtil.cryptoId2Str(id)))
+        if (!blockchains.containsKey(BlockUtil.cryptoId2Str(id))) {
+            System.err.println("New chain added: "+DebugUtils.utf82base64(BlockUtil.cryptoId2Str(id)));
             blockchains.put(BlockUtil.cryptoId2Str(id), new BlockchainV1(this,  id));
+        }
     }
-
 
     /**
      * Check whether the given id is in the peer set. This call will delegate to a CRDT 2P set to
@@ -175,10 +169,6 @@ public class BlockDAGv2 extends BlockDAG {
     public VectorClock computeFrontierSet() {
         VectorClock.Body.Builder builder = VectorClock.Body.newBuilder();
         blockchains.entrySet().forEach(entry -> {
-//            VectorClock.Value value = VectorClock.Value.newBuilder()
-//                    .setIndex(entry.getValue().getBlockList().size())
-//                    .setCryptoId(entry.getValue().getCryptoId()).build();
-//            builder.putValues(entry.getKey(), value);
                     builder.putClocks(entry.getKey(), entry.getValue().getBlockList().size());
         });
         VectorClock.Body body = builder.build();
@@ -195,10 +185,12 @@ public class BlockDAGv2 extends BlockDAG {
      * @param remoteVC the vector clock from remote device.
      * @return a list of blocks to be sent.
      */
-    public Iterable<Block> findMissedBlocksByVectorClock(VectorClock remoteVC) {
+    public List<Block> findMissedBlocksByVectorClock(VectorClock remoteVC) {
         /* finding the last common frontier set */
         Set<Reference> commonFrontierSet = new HashSet<>();
         VectorClock myClock = computeFrontierSet();
+        System.err.println("My Clock: "+myClock.getBody().getClocksMap().toString());
+        System.err.println("Remote Clock: "+remoteVC.getBody().getClocksMap().toString());
         long index = 0;
         for (Map.Entry<String, Long> entry: myClock.getBody().getClocksMap().entrySet()) {
             index = 0;
@@ -212,8 +204,7 @@ public class BlockDAGv2 extends BlockDAG {
                                 .get((int)index-1));
             }
         }
-//        Blockchain thisChain = blockchains.get(BlockUtil.cryptoId2Str(this.config.getCryptoId()));
-//        Reference leadingBlock = thisChain.getBlockList().get(thisChain.getBlockList().size()-1);
+        System.err.println("Common frontier: " + commonFrontierSet.toString());
         return _findMissedBlocks(commonFrontierSet, leadingSet);
     }
 
@@ -248,6 +239,7 @@ public class BlockDAGv2 extends BlockDAG {
             }
         }
         Collections.reverse(blocks);
+        System.err.println("Missed block #: "+blocks.size());
         return blocks;
     }
 
@@ -291,8 +283,11 @@ public class BlockDAGv2 extends BlockDAG {
     }
 
     public void updateVCForDevice(String deviceID, VectorClock vc) {
-        if (!blockchains.containsKey(deviceID))
-            blockchains.putIfAbsent(deviceID, new BlockchainV1(this, BlockUtil.str2cryptoId(deviceID)));
+        if (!blockchains.containsKey(deviceID)) {
+            assert  BlockUtil.cryptoId2Str(BlockUtil.str2cryptoId(deviceID)).equals(deviceID);
+            addNewChain(BlockUtil.str2cryptoId(deviceID));
+        }
+//            blockchains.putIfAbsent(deviceID, new BlockchainV1(this, ));
         blockchains.get(deviceID).setLatestVC(vc);
     }
 
@@ -328,12 +323,6 @@ public class BlockDAGv2 extends BlockDAG {
     @Override
     public void recoverBlocks() {
         loadAllBlocks(manager.loadBlockSet());
-//        manager.loadBlockSet().forEach(b -> {
-//            blockStorage.putIfAbsent(BlockUtil.byRef(b), b);
-//            newBlockListener.onNewBlock(b);
-//            leadingSet.removeAll(b.getVegvisirBlock().getBlock().getParentsList());
-//            leadingSet.add(BlockUtil.byRef(b));
-//        });
     }
 
     @Override

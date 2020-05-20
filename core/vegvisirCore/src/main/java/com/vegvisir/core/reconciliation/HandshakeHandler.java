@@ -1,13 +1,14 @@
 package com.vegvisir.core.reconciliation;
 
-import com.vegvisir.core.reconciliation.exceptions.VegvisirReconciliationException;
-import com.vegvisir.gossip.Gossip;
 import com.vegvisir.network.datatype.proto.VegvisirProtocolMessage;
 
-import vegvisir.proto.Handshake;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import vegvisir.proto.Handshake;
 
 public class HandshakeHandler {
 
@@ -47,7 +48,6 @@ public class HandshakeHandler {
                 if (remoteProtocols.size() == 1) {
                     config.setRunningProtocol(remoteProtocols.iterator().next());
                 } else {
-//                    throw new VegvisirReconciliationException("No common protocol was found");
                     System.err.printf("No Common protocol was found");
                 }
                 synchronized (lock) {
@@ -76,6 +76,8 @@ public class HandshakeHandler {
                 try {
                     lock.wait();
                 } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                    System.err.println("GOT Interrupt: "+ex.getLocalizedMessage());
                     locked = false;
                 }
             }

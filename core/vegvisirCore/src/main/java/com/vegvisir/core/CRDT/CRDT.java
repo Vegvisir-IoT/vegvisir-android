@@ -1,6 +1,8 @@
 package com.vegvisir.core.CRDT;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class CRDT<transactionID, itemType> {
 

@@ -2,6 +2,7 @@ package com.vegvisir.core.reconciliation;
 
 import com.vegvisir.core.blockdag.BlockDAG;
 import com.vegvisir.network.datatype.proto.VegvisirProtocolMessage;
+
 import vegvisir.proto.Handshake;
 import vegvisir.proto.Sendall;
 

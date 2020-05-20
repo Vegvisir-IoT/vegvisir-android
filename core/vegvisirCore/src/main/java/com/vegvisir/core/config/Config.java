@@ -5,28 +5,22 @@ import com.google.protobuf.MessageLite;
 import com.isaacsheff.charlotte.proto.CryptoId;
 import com.vegvisir.core.blockdag.BlockUtil;
 
-import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.ECGenParameterSpec;
-import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ServiceConfigurationError;
@@ -93,6 +87,7 @@ public class Config {
                             )
                            .build()
             ).build();
+            assert BlockUtil.cryptoId2Str(cryptoId).equals(this.nodeId);
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
@@ -108,8 +103,6 @@ public class Config {
             return Signature.getInstance("SHA256withECDSA");
         } catch (NoSuchAlgorithmException e) {
             logger.info("No Algorithm available\n"+e.getLocalizedMessage());
-//        } catch (NoSuchProviderException e) {
-//            logger.info("No BC provider available\n"+e.getLocalizedMessage());
         }
         return null;
     }
@@ -216,9 +209,6 @@ public class Config {
                     signature.getCryptoId().getPublicKey().getEllipticCurveP256().getByteString().toByteArray()));
         } catch(NoSuchAlgorithmException e) {
             return false;
-//        } catch(NoSuchProviderException e) {
-//            return false;
-
         } catch (InvalidKeySpecException e) {
             logger.info("tried to verify a signature which had an invalid key");
             return false; // the key was invalid

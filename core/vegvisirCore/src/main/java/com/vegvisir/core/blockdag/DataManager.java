@@ -8,14 +8,6 @@ import java.util.Set;
 
 public interface DataManager {
 
-//    void save(String key, Object value);
-//
-//    void save(String table, String key, Object value);
-//
-//    Object load(String key, String value);
-//
-//    Map<String, Object> load(String table);
-
     void saveBlock(Block block);
 
     Iterable<Block> loadBlockSet();

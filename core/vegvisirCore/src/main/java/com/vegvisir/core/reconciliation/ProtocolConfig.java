@@ -4,11 +4,10 @@ import com.vegvisir.core.blockdag.BlockDAGv2;
 import com.vegvisir.gossip.Gossip;
 import com.vegvisir.network.datatype.proto.Payload;
 import com.vegvisir.network.datatype.proto.VegvisirProtocolMessage;
-import vegvisir.proto.Handshake;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+
+import vegvisir.proto.Handshake;
 
 public class ProtocolConfig {
 

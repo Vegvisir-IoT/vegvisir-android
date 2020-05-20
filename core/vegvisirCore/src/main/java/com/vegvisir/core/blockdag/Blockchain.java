@@ -1,9 +1,9 @@
 package com.vegvisir.core.blockdag;
 
 import com.isaacsheff.charlotte.proto.CryptoId;
-import com.isaacsheff.charlotte.proto.Hash;
 import com.isaacsheff.charlotte.proto.Reference;
 import com.vegvisir.core.datatype.proto.Block;
+
 import java.util.List;
 
 public abstract class Blockchain {
@@ -78,25 +78,4 @@ public abstract class Blockchain {
     public List<Reference> getBlockList() {
         return _blocks;
     }
-
-
-//    /**
-//     * @param index the index of the block in the list.
-//     * @return a vector clock of the block in the given index position. If index is out of range,
-//     * then return null.
-//     */
-//    public Block.VectorClock getVectorClock(int index) {
-//        if (index >= _blocks.size())
-//            return null;
-//        return _dag.getBlock(_blocks.get(index)).getVegvisirBlock().getBlock().getClock();
-//    }
-//
-//
-//    /**
-//     * @return the vector clock of the last block on this chain so far. This should never return
-//     * null because all chains contains a reference to the genesis block.
-//     */
-//    public Block.VectorClock getLastVectorClock() {
-//        return getVectorClock(_blocks.size()-1);
-//    }
 }

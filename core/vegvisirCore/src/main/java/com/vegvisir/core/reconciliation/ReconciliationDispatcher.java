@@ -1,18 +1,14 @@
 package com.vegvisir.core.reconciliation;
 
-import com.vegvisir.core.blockdag.BlockDAG;
 import com.vegvisir.core.blockdag.BlockDAGv2;
-import com.vegvisir.core.blockdag.ReconciliationEndListener;
-import com.vegvisir.core.config.Config;
-import com.vegvisir.core.reconciliation.exceptions.VegvisirReconciliationException;
 import com.vegvisir.gossip.Gossip;
-import vegvisir.proto.Handshake;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import vegvisir.proto.Handshake;
 
 /**
  * The interface for reconciliation protocol, we may need to add functions here for newer version.

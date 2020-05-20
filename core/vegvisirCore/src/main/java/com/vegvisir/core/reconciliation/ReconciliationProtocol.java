@@ -1,6 +1,7 @@
 package com.vegvisir.core.reconciliation;
 
 import com.vegvisir.network.datatype.proto.VegvisirProtocolMessage;
+
 import vegvisir.proto.Handshake;
 
 public interface ReconciliationProtocol {
