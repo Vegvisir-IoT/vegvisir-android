@@ -19,7 +19,10 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.Task;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.vegvisir.util.profiling.DebugUtils;
+import com.vegvisir.util.profiling.VegvisirStatsCollector;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -90,19 +93,65 @@ public class ByteStream {
 
     private boolean isInPairingProgress = false;
 
+    private VegvisirStatsCollector statsCollector = VegvisirStatsCollector.getInstance();
+
+    private HashMap<Long, Long> transferredPayloadMap;
+    private HashSet<Long> sentPayloadMap;
+    private HashSet<Long> receivedPayloadMap;
+
     /* Callbacks for receiving payloads */
     private final PayloadCallback payloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(String endPointId, Payload payload) {
-            String remoteId = endpoint2id.get(endPointId);
-            if (connections.containsKey(remoteId)) {
-                recv(remoteId, payload);
+            Log.d(TAG, "onPayloadReceived: Payload Received");
+            if (payload.getType() == Payload.Type.BYTES) {
+                if (payload.asBytes() != null) {
+                    String id = ByteString.copyFrom(payload.asBytes()).toStringUtf8();
+                    endpoint2id.put(endPointId, id);
+                    Log.d(TAG, "onPayloadReceived: ID Received " + DebugUtils.utf82base64(id));
+                    connections.put(endpoint2id.get(endPointId), new EndPointConnection(endPointId,
+                            endpoint2id.get(endPointId),
+                            appContext,
+                            self));
+                    connections.get(endpoint2id.get(endPointId)).setConnected(true);
+                    establishedConnection.push(connections.get(endpoint2id.get(endPointId)));
+                }
+            } else if (payload.getType() == Payload.Type.STREAM) {
+                receivedPayloadMap.add(payload.getId());
+                String remoteId = endpoint2id.get(endPointId);
+                if (connections.containsKey(remoteId)) {
+                    recv(remoteId, payload);
+                }
+                Log.d(TAG, "onPayloadReceived: Data Payload Received");
+            } else {
+                Log.d(TAG, "onPayloadReceived: ERROR, should not recieve file!");
             }
         }
 
         @Override
         public void onPayloadTransferUpdate(String endPointId,
                 PayloadTransferUpdate payloadTransferUpdate) {
+
+            if (payloadTransferUpdate.getTotalBytes() > 0) {
+                return;
+            }
+            long bytesTransferred = payloadTransferUpdate.getBytesTransferred() - transferredPayloadMap.getOrDefault(payloadTransferUpdate.getPayloadId(), 0L);
+            statsCollector.logDataTransferredEvent(bytesTransferred);
+            if (receivedPayloadMap.contains(payloadTransferUpdate.getPayloadId())) {
+                statsCollector.logReceivedPayloadSize(bytesTransferred);
+            }
+            if (payloadTransferUpdate.getStatus() == PayloadTransferUpdate.Status.IN_PROGRESS) {
+                transferredPayloadMap.put(payloadTransferUpdate.getPayloadId(), payloadTransferUpdate.getBytesTransferred());
+                Log.d(TAG, "onPayloadTransferUpdate: In Progress Payload Transferred " + payloadTransferUpdate.getBytesTransferred());
+            } else {
+                transferredPayloadMap.remove(payloadTransferUpdate.getPayloadId());
+                sentPayloadMap.remove(payloadTransferUpdate.getPayloadId());
+                if (receivedPayloadMap.contains(payloadTransferUpdate.getPayloadId())) {
+//                    statsCollector.logReceivedPayloadSize(payloadTransferUpdate.getBytesTransferred());
+                    receivedPayloadMap.remove(payloadTransferUpdate.getPayloadId());
+                }
+                Log.d(TAG, "onPayloadTransferUpdate: Not in Progress Payload Transferred " + payloadTransferUpdate.getBytesTransferred() + " Status: "+payloadTransferUpdate.getStatus());
+            }
         }
     };
 
@@ -118,7 +167,6 @@ public class ByteStream {
             String remoteId = discoveredEndpointInfo.getEndpointName();
             Log.i(TAG, "onEndpointFound: "+ discoveredEndpointInfo.getEndpointName() + "/" + endPoint);
             if (discoveredEndpointInfo.getServiceId().equals(SERVICE_ID)) {
-                endpoint2id.put(endPoint, remoteId);
                 nearbyEndpoints.add(endPoint);
                 if (connections.containsKey(remoteId)) {
                     if (connections.get(remoteId).isConnected()) {
@@ -145,24 +193,9 @@ public class ByteStream {
                             restart();
                             setInPairingProgress(false);
                     }
-//                    if (t.getMessage().equals("8012: STATUS_ENDPOINT_IO_ERROR")) {
-//                        restart();
-//                    }
 
                 });
             }
-//            if (discoveredEndpointInfo.getServiceId().equals(SERVICE_ID) &&
-//                    (!connections.containsKey(endPoint) || (connections.containsKey(endPoint) &&
-//                    connections.get(endPoint).isWakeup() && !connections.get(endPoint).isConnected()))) {
-//                    Task<Void> requestTask = client.requestConnection(advisingID, endPoint, connectionLifecycleCallback);
-//                requestTask.addOnFailureListener((t) -> {
-//                    Log.e(TAG, "onEndpointFound: ", t);
-//                    Log.d(TAG, "onEndpointFound: " + t.getMessage());
-//                    if (t.getMessage().equals("8012: STATUS_ENDPOINT_IO_ERROR")) {
-//                        restart();
-//                    }
-//                });
-//                }
         }
 
         @Override
@@ -180,7 +213,7 @@ public class ByteStream {
                 hasFoundPeer = true;
             }
             Log.d(TAG, "onConnectionInitiated: Received Connection Request");
-            endpoint2id.putIfAbsent(endPoint, connectionInfo.getEndpointName());
+            Log.d(TAG, "onConnectionInitiated: END POINT ADVERTISING ID: "+DebugUtils.utf82base64(connectionInfo.getEndpointName()));
             if (activeEndPoint != null) {
                 client.rejectConnection(endPoint);
                 setInPairingProgress(false);
@@ -189,6 +222,7 @@ public class ByteStream {
             else {
                 synchronized (lock) {
                     if (activeEndPoint == null) {
+                        activeEndPoint = endPoint;
                         client.acceptConnection(endPoint, payloadCallback);
                         Log.d(TAG, "onConnectionInitiated: Accepted request");
                     } else {
@@ -206,56 +240,56 @@ public class ByteStream {
 
             Log.d(TAG, "onConnectionResult: " + connectionResolution.getStatus().getStatusMessage());
 
-            if (activeEndPoint != null)
-                return;
-
             synchronized (lock) {
-                if (activeEndPoint == null) {
-                    if (connectionResolution.getStatus().isSuccess()) {
-                        activeEndPoint = endPoint;
-                        client.stopDiscovery();
-                        client.stopAdvertising();
-                        synchronized (this) {
-                            isDiscovering = false;
-                        }
-                        connections.put(endpoint2id.get(endPoint), new EndPointConnection(endPoint,
-                                endpoint2id.get(endPoint),
-                                appContext,
-                                self));
-                        connections.get(endpoint2id.get(endPoint)).setConnected(true);
-                        establishedConnection.push(connections.get(endpoint2id.get(endPoint)));
-                        Log.i(TAG, "onConnectionResult: Connection established!");
-                        setInPairingProgress(false);
-                    } else {
-                        Log.i("Vegivsir-EndPointConnection", "connection failed");
-                        setInPairingProgress(false);
-                        restart();
+                if (connectionResolution.getStatus().isSuccess()) {
+                    client.stopDiscovery();
+                    client.stopAdvertising();
+                    synchronized (this) {
+                        isDiscovering = false;
                     }
+
+                    Log.i(TAG, "onConnectionResult: Connection established!");
+                    setInPairingProgress(false);
+                } else {
+                    activeEndPoint = null;
+                    Log.i("Vegivsir-EndPointConnection", "connection failed");
+                    setInPairingProgress(false);
+                    restart();
                 }
             }
+            sendCryptoID(endPoint);
         }
 
         @Override
         public void onDisconnected(String endPoint) {
             synchronized (lock) {
                 activeEndPoint = null;
-                connections.get(endpoint2id.get(endPoint)).setConnected(false);
-                disconnectedId.add(endpoint2id.get(endPoint));
+                if (endpoint2id.containsKey(endPoint)) {
+                    connections.get(endpoint2id.get(endPoint)).setConnected(false);
+                    disconnectedId.add(endpoint2id.get(endPoint));
+                    Log.d(TAG, "disconnect: Disconnected with " + endpoint2id.get(endPoint));
+                }
                 hasFoundPeer = true;
             }
-            Log.d(TAG, "disconnect: Disconnected with " + endpoint2id.get(endPoint));
             start();
         }
     };
 
+    private void sendCryptoID(String endPoint) {
+        client.sendPayload(endPoint, Payload.fromBytes(advisingID.getBytes()));
+    }
 
     public ByteStream(Context context, String advisingID) {
         appContext = context;
         client = Nearby.getConnectionsClient(appContext);
         this.advisingID = advisingID;
+        Log.d(TAG, "ByteStream: AdvertisingID: "+ DebugUtils.utf82base64(advisingID));
         lock = new Object();
         establishedConnection = new LinkedBlockingDeque<>(1);
         connections = new HashMap<>();
+        transferredPayloadMap = new HashMap<>();
+        sentPayloadMap = new HashSet<>();
+        receivedPayloadMap = new HashSet<>();
         cachePayload = new LinkedBlockingQueue<>();
         self = this;
         disconnectedId = new LinkedBlockingQueue<>();
@@ -333,7 +367,9 @@ public class ByteStream {
     public Task<Void> send(String dest, com.vegvisir.network.datatype.proto.Payload payload) {
         if (ENABLE_GOOGLE_NEARBY) {
             InputStream stream = new ByteArrayInputStream(payload.toByteArray());
-            Task<Void> task = client.sendPayload(dest, Payload.fromStream(stream));
+            Payload sentPayload = Payload.fromStream(stream);
+            Task<Void> task = client.sendPayload(dest, sentPayload);
+            sentPayloadMap.add(sentPayload.getId());
             return task;
         } else {
             connections.get(dest).onRecv(payload);
@@ -399,14 +435,7 @@ public class ByteStream {
                 isDiscovering = true;
             }
         } else {
-//            String endPoint = "testConn";
-//            connections.putIfAbsent(endPoint, new
-//                    EndPointConnection(endPoint,
-//                    appContext,
-//                    self));
-//            activeEndPoint = endPoint;
-//            connections.get(activeEndPoint).setConnected(true);
-//            establishedConnection.add(connections.get(activeEndPoint));
+            throw new RuntimeException("Google Nearby should be enabled!");
         }
     }
 
@@ -419,11 +448,18 @@ public class ByteStream {
      * @param remoteID a string format of remote public key
      */
     public void disconnect(String remoteID) {
+        while (!sentPayloadMap.isEmpty()) {
+            try {
+                Log.d(TAG, "disconnect: Sentpayload size " + sentPayloadMap.size());
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                break;
+            }
+        }
         Log.d(TAG, "disconnect: DISCONNECT CALLED");
         String id = connections.get(remoteID).getEndPointId();
         if (id.equals(getActiveEndPoint())) {
             connections.get(remoteID).waitUntilFlushAllData();
-//            client.disconnectFromEndpoint(id);
             synchronized (lock) {
                 connections.get(remoteID).setConnected(false);
                 disconnectedId.add(remoteID);
@@ -449,10 +485,6 @@ public class ByteStream {
             isDiscovering = false;
             client.stopDiscovery();
             client.stopAdvertising();
-//            try {
-//                /* Wait for a while */
-//                Thread.sleep( 1000 + rnd.nextInt(10) * 100);
-//            } catch (InterruptedException ex) {}
             start();
             Log.d(TAG, "onEndpointFound: Restarted!");
         }

@@ -1,7 +1,7 @@
 package com.vegvisir.vegvisir_lower_level.network;
 
-import com.vegvisir.vegvisir_lower_level.network.Exceptions.HandlerNotRegisteredException;
 import com.vegvisir.network.datatype.proto.Payload;
+import com.vegvisir.vegvisir_lower_level.network.Exceptions.HandlerNotRegisteredException;
 
 import java.util.HashMap;
 import java.util.Map;

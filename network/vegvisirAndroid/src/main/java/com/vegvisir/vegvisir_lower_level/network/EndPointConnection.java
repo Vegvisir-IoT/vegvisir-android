@@ -1,6 +1,7 @@
 package com.vegvisir.vegvisir_lower_level.network;
 
 import android.content.Context;
+
 import com.google.android.gms.tasks.Task;
 import com.vegvisir.network.datatype.proto.Payload;
 import com.vegvisir.vegvisir_lower_level.network.Exceptions.ConnectionNotAvailableException;
@@ -34,6 +35,8 @@ public class EndPointConnection {
 
     private Set<Task> sendingTasks;
 
+    private Set<Long> sentPayloadIDs;
+
     private final Object flushLock = new Object();
 
     private Boolean flushCondition = false;
@@ -50,6 +53,7 @@ public class EndPointConnection {
         connectedTime = Utils.getTimeInMilliseconds();
         wakeupTime = Utils.getTimeInMilliseconds();
         sendingTasks = new HashSet<>();
+        sentPayloadIDs = new HashSet<>();
     }
 
     /**
@@ -135,15 +139,6 @@ public class EndPointConnection {
         return connected;
     }
 
-//    @Deprecated
-//    public com.vegvisir.network.datatype.proto.Connection toProtoConnection() {
-//        return com.vegvisir.network.datatype.proto.Connection.newBuilder()
-//                .setRemoteId(Identifier.newBuilder().setName(endPointId).build())
-//                .setWakeupTime(Timestamp.newBuilder().setUtcTime(wakeupTime).build())
-//                .setConnectedTime(Timestamp.newBuilder().setElapsedTime(connectedTime).build())
-//                .build();
-//    }
-
     public String getEndPointId() {
         return endPointId;
     }
@@ -166,5 +161,13 @@ public class EndPointConnection {
             }
             ex.printStackTrace();
         }
+    }
+
+    public boolean addPayloadID(long id) {
+        return sentPayloadIDs.add(id);
+    }
+
+    public boolean removePayloadID(long id) {
+        return sentPayloadIDs.remove(id);
     }
 }
