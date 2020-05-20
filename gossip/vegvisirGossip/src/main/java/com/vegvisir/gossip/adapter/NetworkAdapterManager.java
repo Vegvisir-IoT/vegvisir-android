@@ -2,11 +2,13 @@ package com.vegvisir.gossip.adapter;
 
 import com.vegvisir.network.datatype.proto.Payload;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -30,6 +32,13 @@ public class NetworkAdapterManager implements NetworkAdapter {
         service = Executors.newCachedThreadPool();
     }
 
+
+    /**
+     *
+     * @param name
+     * @param priority the higher number will get higher priority
+     * @param adapter
+     */
     public void registerAdapter(String name, int priority, NetworkAdapter adapter) {
         adapters.put(name, adapter);
         priorities.put(name, priority);
@@ -138,7 +147,4 @@ public class NetworkAdapterManager implements NetworkAdapter {
     public void shutdown() {
         isRunning = false;
     }
-
-
-
 }

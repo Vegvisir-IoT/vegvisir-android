@@ -1,6 +1,5 @@
 package com.vegvisir.gossip;
 
-import com.vegvisir.gossip.adapter.NetworkAdapter;
 import com.vegvisir.gossip.adapter.NetworkAdapterManager;
 import com.vegvisir.network.datatype.proto.Payload;
 
@@ -101,8 +100,6 @@ public class Gossip {
                     handler.accept(connections.get(id).blockingGet());
                 } catch (InterruptedException ex) {
                     return;
-//                    if (!connections.get(id).isConnected())
-//                        return;
                 }
             }
         });
